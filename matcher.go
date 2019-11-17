@@ -12,6 +12,12 @@ type Matcher interface {
 	TransformValue(string) (interface{}, error)
 }
 
+func not(fn matcherFunc) matcherFunc {
+	return func(a interface{}, b interface{}) bool {
+		return !fn(a, b)
+	}
+}
+
 type IntMatcher struct{}
 
 func (i IntMatcher) MatchEquals(a interface{}, b interface{}) bool {
@@ -53,6 +59,7 @@ type operator int
 
 const (
 	opEquals operator = iota
+	opNotEquals
 	opLike
 )
 
@@ -60,6 +67,8 @@ func funcByOP(m Matcher, op operator) matcherFunc {
 	switch op {
 	case opEquals:
 		return m.MatchEquals
+	case opNotEquals:
+		return not(m.MatchEquals)
 	case opLike:
 		return m.MatchLike
 	}
