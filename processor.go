@@ -28,6 +28,7 @@ func (p Processor) Build(query string) (*Query, error) {
 func (p Processor) parser() pars.Parser {
 	return pars.Dispatch(
 		orClause{&p},
+		andClause{&p},
 		p.termClause())
 }
 
@@ -57,7 +58,11 @@ type orClause struct {
 
 func (o orClause) Parsers() []pars.Parser {
 	return []pars.Parser{
-		pars.DiscardRight(o.p.fieldParser(), wholeWordParser(pars.StringCI("or"))),
+		pars.DiscardRight(
+			pars.Dispatch(
+				andClause{o.p},
+				o.p.termClause()),
+			wholeWordParser(pars.StringCI("or"))),
 		pars.Recursive(o.p.parser),
 	}
 }
@@ -71,6 +76,31 @@ func (o orClause) TransformResult(fns []interface{}) interface{} {
 }
 
 func (o orClause) TransformError(err error) error {
+	return err
+}
+
+type andClause struct {
+	p *Processor
+}
+
+func (o andClause) Parsers() []pars.Parser {
+	return []pars.Parser{
+		pars.DiscardRight(o.p.fieldParser(), wholeWordParser(pars.StringCI("and"))),
+		pars.Recursive(func() pars.Parser {
+			return pars.Dispatch(andClause{o.p}, o.p.termClause())
+		}),
+	}
+}
+
+func (o andClause) TransformResult(fns []interface{}) interface{} {
+	left := fns[0].(queryFunc)
+	right := fns[1].(queryFunc)
+	return func(val interface{}) bool {
+		return left(val) && right(val)
+	}
+}
+
+func (o andClause) TransformError(err error) error {
 	return err
 }
 
