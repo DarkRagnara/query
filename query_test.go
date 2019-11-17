@@ -47,6 +47,17 @@ type test struct {
 	resultIdx []int
 }
 
+func TestComplexQueries(t *testing.T) {
+	tests := []test{
+		{"id = '3' or id = '5'", []int{2, 4}},
+		{"id = '5' or name like 'd%'", []int{3, 4, 5, 6}},
+		{"id = '3' or id2 = '3'", []int{3, 4}},
+		{"id = '3' or id = '5' or id = '1'", []int{0, 2, 4}},
+	}
+
+	runTests(t, tests)
+}
+
 func TestQueryWithLikeString(t *testing.T) {
 	tests := []test{
 		{"name like '%abc'", []int{0, 1, 2, 5}},

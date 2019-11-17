@@ -17,3 +17,5 @@ func (q Query) Run() []interface{} {
 	}
 	return results
 }
+
+type queryFunc = func(interface{}) bool

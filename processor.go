@@ -17,21 +17,23 @@ func NewProcessor(db Queryable) Processor {
 }
 
 func (p Processor) Build(query string) (*Query, error) {
-	matcher, err := pars.ParseString(query, p.parser())
+	matcher, err := pars.ParseString(query, pars.DiscardRight(p.parser(), pars.EOF))
 	if err != nil {
 		return nil, err
 	}
 
-	return &Query{db: p.db, matcher: matcher.(func(interface{}) bool)}, nil
+	return &Query{db: p.db, matcher: matcher.(queryFunc)}, nil
 }
 
 func (p Processor) parser() pars.Parser {
-	return pars.Dispatch(p.termClause())
+	return pars.Dispatch(
+		orClause{&p},
+		p.termClause())
 }
 
 func (p Processor) termClause() pars.DispatchClause {
 	return pars.DescribeClause{
-		DispatchClause: pars.Clause{pars.DiscardRight(p.fieldParser(), pars.EOF)},
+		DispatchClause: pars.Clause{p.fieldParser()},
 		Description:    "query term"}
 }
 
@@ -40,13 +42,36 @@ func (p Processor) fieldParser() pars.Parser {
 	for _, field := range p.fields {
 		clauses = append(clauses, field)
 	}
-  clauses = append(clauses, pars.Clause{pars.Error(errors.New("Identifier expected"))})
+	clauses = append(clauses, pars.Clause{pars.Error(errors.New("Identifier expected"))})
 	return pars.Dispatch(clauses...)
 }
 
 type Queryable interface {
 	Fields() []Field
 	Iter() Iter
+}
+
+type orClause struct {
+	p *Processor
+}
+
+func (o orClause) Parsers() []pars.Parser {
+	return []pars.Parser{
+		pars.DiscardRight(o.p.fieldParser(), wholeWordParser(pars.StringCI("or"))),
+		pars.Recursive(o.p.parser),
+	}
+}
+
+func (o orClause) TransformResult(fns []interface{}) interface{} {
+	left := fns[0].(queryFunc)
+	right := fns[1].(queryFunc)
+	return func(val interface{}) bool {
+		return left(val) || right(val)
+	}
+}
+
+func (o orClause) TransformError(err error) error {
+	return err
 }
 
 type Field struct {
