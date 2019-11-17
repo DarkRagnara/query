@@ -77,18 +77,29 @@ func opParser(m Matcher) pars.Parser {
 	return pars.Or(
 		pars.Transformer(pars.Char('='), func(interface{}) (interface{}, error) {
 			return funcByOP(m, opEquals), nil
+		}),
+		pars.Transformer(likeKeywordParser(), func(interface{}) (interface{}, error) {
+			return funcByOP(m, opLike), nil
 		}))
 }
 
-func identifierParser(name string) pars.Parser {
+func wholeWordParser(p pars.Parser) pars.Parser {
 	return pars.SwallowWhitespace(
 		pars.Except(
-			pars.String(name),
+			p.Clone(),
 			pars.Seq(
-				pars.String(name),
+				p.Clone(),
 				pars.CharPred(func(r rune) bool {
 					return unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_'
 				}))))
+}
+
+func likeKeywordParser() pars.Parser {
+	return wholeWordParser(pars.StringCI("like"))
+}
+
+func identifierParser(name string) pars.Parser {
+	return wholeWordParser(pars.String(name))
 }
 
 func valueParser(m Matcher) pars.Parser {

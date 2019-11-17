@@ -38,12 +38,24 @@ func createData() testdb {
 		{id: 4, id2: 3, name: "def"},
 		{id: 5, id2: 2, name: "abcdef"},
 		{id: 6, id2: 1, name: "defabc"},
+		{id: 7, id2: 0, name: "defabcdef"},
 	}
 }
 
 type test struct {
 	q         string
 	resultIdx []int
+}
+
+func TestQueryWithLikeString(t *testing.T) {
+	tests := []test{
+		{"name like '%abc'", []int{0, 1, 2, 5}},
+		{"name LIKE 'abc%'", []int{0, 1, 2, 4}},
+		{"name like '%abc%'", []int{0, 1, 2, 4, 5, 6}},
+		{"name LiKe '%'", []int{0, 1, 2, 3, 4, 5, 6}},
+	}
+
+	runTests(t, tests)
 }
 
 func TestQueryWithEqualsInt(t *testing.T) {
