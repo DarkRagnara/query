@@ -182,6 +182,27 @@ func TestQueryWithNotEqualsString(t *testing.T) {
 	runTests(t, tests)
 }
 
+func TestParserErrors(t *testing.T) {
+	tests := []struct {
+		q   string
+		err string
+	}{
+		{"", "Identifier expected"},
+		{"id something...", "Operator expected"},
+		{"id = '3'garbage", "Expected EOF: Found byte 0x67"},
+		{"id = '3", "Could not parse expected string \"'\": EOF"},
+	}
+
+	db := createData()
+	proc := NewProcessor(db)
+	for _, test := range tests {
+		_, err := proc.Build(test.q)
+		if err.Error() != test.err {
+			t.Errorf("Query {%v}: Expected error %v, but got %v", test.q, test.err, err.Error())
+		}
+	}
+}
+
 func runTests(t *testing.T, tests []test) {
 	t.Helper()
 	db := createData()

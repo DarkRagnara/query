@@ -2,6 +2,7 @@ package query
 
 import (
 	"bitbucket.org/ragnara/pars/v2"
+	"errors"
 	"unicode"
 )
 
@@ -30,7 +31,7 @@ func (p Processor) parser() pars.Parser {
 
 func (p Processor) termClause() pars.DispatchClause {
 	return pars.DescribeClause{
-		DispatchClause: pars.Clause{p.fieldParser()},
+		DispatchClause: pars.Clause{pars.DiscardRight(p.fieldParser(), pars.EOF)},
 		Description:    "query term"}
 }
 
@@ -39,6 +40,7 @@ func (p Processor) fieldParser() pars.Parser {
 	for _, field := range p.fields {
 		clauses = append(clauses, field)
 	}
+  clauses = append(clauses, pars.Clause{pars.Error(errors.New("Identifier expected"))})
 	return pars.Dispatch(clauses...)
 }
 
@@ -95,7 +97,8 @@ func opParser(m Matcher) pars.Parser {
 		}),
 		pars.Transformer(likeKeywordParser(), func(interface{}) (interface{}, error) {
 			return funcByOP(m, opLike), nil
-		}))
+		}),
+		pars.Error(errors.New("Operator expected")))
 }
 
 func wholeWordParser(p pars.Parser) pars.Parser {
