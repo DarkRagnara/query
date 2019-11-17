@@ -78,6 +78,26 @@ func TestQueryWithEqualsString(t *testing.T) {
 	runTests(t, tests)
 }
 
+func TestQueryWithLessThanInt(t *testing.T) {
+	tests := []test{
+		{"id < '3'", []int{0, 1}},
+		{"id < '5'", []int{0, 1, 2, 3}},
+		{"id2 < '3'", []int{4, 5, 6}},
+		{"id2 < '5'", []int{2, 3, 4, 5, 6}},
+	}
+
+	runTests(t, tests)
+}
+
+func TestQueryWithLessThanString(t *testing.T) {
+	tests := []test{
+		{"name < 'abc'", []int{}},
+		{"name < 'def'", []int{0, 1, 2, 4}},
+		{"name < 'abd'", []int{0, 1, 2, 4}},
+	}
+
+	runTests(t, tests)
+}
 func TestQueryWithNotEqualsInt(t *testing.T) {
 	tests := []test{
 		{"id <> '3'", []int{0, 1, 3, 4, 5, 6}},
