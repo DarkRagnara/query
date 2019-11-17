@@ -81,6 +81,12 @@ func opParser(m Matcher) pars.Parser {
 		pars.Transformer(pars.String("<>"), func(interface{}) (interface{}, error) {
 			return funcByOP(m, opNotEquals), nil
 		}),
+		pars.Transformer(pars.String("<="), func(interface{}) (interface{}, error) {
+			return funcByOP(m, opLessThanOrEquals), nil
+		}),
+		pars.Transformer(pars.String(">="), func(interface{}) (interface{}, error) {
+			return funcByOP(m, opGreaterThanOrEquals), nil
+		}),
 		pars.Transformer(pars.Char('<'), func(interface{}) (interface{}, error) {
 			return funcByOP(m, opLessThan), nil
 		}),

@@ -8,6 +8,8 @@ import (
 
 type Matcher interface {
 	MatchEquals(interface{}, interface{}) bool
+	MatchLessThanOrEquals(interface{}, interface{}) bool
+	MatchGreaterThanOrEquals(interface{}, interface{}) bool
 	MatchLessThan(interface{}, interface{}) bool
 	MatchGreaterThan(interface{}, interface{}) bool
 	MatchLike(interface{}, interface{}) bool
@@ -26,6 +28,18 @@ func (i IntMatcher) MatchEquals(a interface{}, b interface{}) bool {
 	aInt := a.(int)
 	bInt := b.(int)
 	return aInt == bInt
+}
+
+func (i IntMatcher) MatchLessThanOrEquals(a interface{}, b interface{}) bool {
+	aInt := a.(int)
+	bInt := b.(int)
+	return aInt <= bInt
+}
+
+func (i IntMatcher) MatchGreaterThanOrEquals(a interface{}, b interface{}) bool {
+	aInt := a.(int)
+	bInt := b.(int)
+	return aInt >= bInt
 }
 
 func (i IntMatcher) MatchLessThan(a interface{}, b interface{}) bool {
@@ -54,6 +68,18 @@ func (s StringMatcher) MatchEquals(a interface{}, b interface{}) bool {
 	aStr := a.(string)
 	bStr := b.(string)
 	return strings.EqualFold(aStr, bStr)
+}
+
+func (s StringMatcher) MatchLessThanOrEquals(a interface{}, b interface{}) bool {
+	aStr := strings.ToLower(a.(string))
+	bStr := strings.ToLower(b.(string))
+	return aStr <= bStr
+}
+
+func (s StringMatcher) MatchGreaterThanOrEquals(a interface{}, b interface{}) bool {
+	aStr := strings.ToLower(a.(string))
+	bStr := strings.ToLower(b.(string))
+	return aStr >= bStr
 }
 
 func (s StringMatcher) MatchLessThan(a interface{}, b interface{}) bool {
@@ -86,6 +112,8 @@ type operator int
 const (
 	opEquals operator = iota
 	opNotEquals
+	opLessThanOrEquals
+	opGreaterThanOrEquals
 	opLessThan
 	opGreaterThan
 	opLike
@@ -97,6 +125,10 @@ func funcByOP(m Matcher, op operator) matcherFunc {
 		return m.MatchEquals
 	case opNotEquals:
 		return not(m.MatchEquals)
+	case opLessThanOrEquals:
+		return m.MatchLessThanOrEquals
+	case opGreaterThanOrEquals:
+		return m.MatchGreaterThanOrEquals
 	case opLessThan:
 		return m.MatchLessThan
 	case opGreaterThan:

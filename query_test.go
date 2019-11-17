@@ -99,6 +99,27 @@ func TestQueryWithLessThanString(t *testing.T) {
 	runTests(t, tests)
 }
 
+func TestQueryWithLessThanOrEqualsInt(t *testing.T) {
+	tests := []test{
+		{"id <= '3'", []int{0, 1, 2}},
+		{"id <= '5'", []int{0, 1, 2, 3, 4}},
+		{"id2 <= '3'", []int{3, 4, 5, 6}},
+		{"id2 <= '5'", []int{1, 2, 3, 4, 5, 6}},
+	}
+
+	runTests(t, tests)
+}
+
+func TestQueryWithLessThanOrEqualsString(t *testing.T) {
+	tests := []test{
+		{"name <= 'abc'", []int{0, 1, 2}},
+		{"name <= 'def'", []int{0, 1, 2, 3, 4}},
+		{"name <= 'abd'", []int{0, 1, 2, 4}},
+	}
+
+	runTests(t, tests)
+}
+
 func TestQueryWithGreaterThanInt(t *testing.T) {
 	tests := []test{
 		{"id > '3'", []int{3, 4, 5, 6}},
@@ -115,6 +136,27 @@ func TestQueryWithGreaterThanString(t *testing.T) {
 		{"name > 'abc'", []int{3, 4, 5, 6}},
 		{"name > 'def'", []int{5, 6}},
 		{"name > 'abd'", []int{3, 5, 6}},
+	}
+
+	runTests(t, tests)
+}
+
+func TestQueryWithGreaterThanOrEqualsInt(t *testing.T) {
+	tests := []test{
+		{"id >= '3'", []int{2, 3, 4, 5, 6}},
+		{"id >= '5'", []int{4, 5, 6}},
+		{"id2 >= '3'", []int{0, 1, 2, 3}},
+		{"id2 >= '5'", []int{0, 1}},
+	}
+
+	runTests(t, tests)
+}
+
+func TestQueryWithGreaterThanOrEqualsString(t *testing.T) {
+	tests := []test{
+		{"name >= 'abc'", []int{0, 1, 2, 3, 4, 5, 6}},
+		{"name >= 'def'", []int{3, 5, 6}},
+		{"name >= 'abd'", []int{3, 5, 6}},
 	}
 
 	runTests(t, tests)
