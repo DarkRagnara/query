@@ -6,19 +6,38 @@ import (
 
 type testdata struct {
 	id   int
+	id2  int
 	name string
 }
 
 type testdb []testdata
 
+func (db testdb) Fields() []Field {
+	return []Field{
+		{"id", func(entry interface{}) interface{} {
+			return entry.(testdata).id
+		}, IntEqualsMatcher{}},
+		{"id2", func(entry interface{}) interface{} {
+			return entry.(testdata).id2
+		}, IntEqualsMatcher{}},
+		{"name", func(entry interface{}) interface{} {
+			return entry.(testdata).name
+		}, StringEqualsMatcher{}},
+	}
+}
+
+func (db testdb) Iter() Iter {
+	return &SliceIter{db}
+}
+
 func createData() testdb {
 	return testdb{
-		{id: 1, name: "abc"},
-		{id: 2, name: "abc"},
-		{id: 3, name: "ABC"},
-		{id: 4, name: "def"},
-		{id: 5, name: "abcdef"},
-		{id: 6, name: "defabc"},
+		{id: 1, id2: 6, name: "abc"},
+		{id: 2, id2: 5, name: "abc"},
+		{id: 3, id2: 4, name: "ABC"},
+		{id: 4, id2: 3, name: "def"},
+		{id: 5, id2: 2, name: "abcdef"},
+		{id: 6, id2: 1, name: "defabc"},
 	}
 }
 
@@ -28,13 +47,29 @@ type test struct {
 }
 
 func TestQueryWithEqualsInt(t *testing.T) {
-	db := createData()
-	proc := NewProcessor(db)
-
 	tests := []test{
 		{"id = '3'", []int{2}},
 		{"id = '5'", []int{4}},
+		{"id2 = '3'", []int{3}},
+		{"id2 = '5'", []int{1}},
 	}
+
+	runTests(t, tests)
+}
+
+func TestQueryWithEqualsString(t *testing.T) {
+	tests := []test{
+		{"name = 'abc'", []int{0, 1, 2}},
+		{"name = 'def'", []int{3}},
+	}
+
+	runTests(t, tests)
+}
+
+func runTests(t *testing.T, tests []test) {
+	t.Helper()
+	db := createData()
+	proc := NewProcessor(db)
 
 	for _, test := range tests {
 		query, err := proc.Build(test.q)
