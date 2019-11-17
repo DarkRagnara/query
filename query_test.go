@@ -16,13 +16,13 @@ func (db testdb) Fields() []Field {
 	return []Field{
 		{"id", func(entry interface{}) interface{} {
 			return entry.(testdata).id
-		}, IntEqualsMatcher{}},
+		}, IntMatcher{}},
 		{"id2", func(entry interface{}) interface{} {
 			return entry.(testdata).id2
-		}, IntEqualsMatcher{}},
+		}, IntMatcher{}},
 		{"name", func(entry interface{}) interface{} {
 			return entry.(testdata).name
-		}, StringEqualsMatcher{}},
+		}, StringMatcher{}},
 	}
 }
 

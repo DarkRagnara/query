@@ -10,27 +10,27 @@ type Matcher interface {
 	TransformValue(string) (interface{}, error)
 }
 
-type IntEqualsMatcher struct{}
+type IntMatcher struct{}
 
-func (i IntEqualsMatcher) MatchEquals(a interface{}, b interface{}) bool {
+func (i IntMatcher) MatchEquals(a interface{}, b interface{}) bool {
 	aInt := a.(int)
 	bInt := b.(int)
 	return aInt == bInt
 }
 
-func (i IntEqualsMatcher) TransformValue(s string) (interface{}, error) {
+func (i IntMatcher) TransformValue(s string) (interface{}, error) {
 	return strconv.Atoi(s)
 }
 
-type StringEqualsMatcher struct{}
+type StringMatcher struct{}
 
-func (s StringEqualsMatcher) MatchEquals(a interface{}, b interface{}) bool {
+func (s StringMatcher) MatchEquals(a interface{}, b interface{}) bool {
 	aStr := a.(string)
 	bStr := b.(string)
 	return strings.EqualFold(aStr, bStr)
 }
 
-func (s StringEqualsMatcher) TransformValue(str string) (interface{}, error) {
+func (s StringMatcher) TransformValue(str string) (interface{}, error) {
 	return str, nil
 }
 
