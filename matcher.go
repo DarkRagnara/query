@@ -9,6 +9,7 @@ import (
 type Matcher interface {
 	MatchEquals(interface{}, interface{}) bool
 	MatchLessThan(interface{}, interface{}) bool
+	MatchGreaterThan(interface{}, interface{}) bool
 	MatchLike(interface{}, interface{}) bool
 	TransformValue(string) (interface{}, error)
 }
@@ -33,6 +34,12 @@ func (i IntMatcher) MatchLessThan(a interface{}, b interface{}) bool {
 	return aInt < bInt
 }
 
+func (i IntMatcher) MatchGreaterThan(a interface{}, b interface{}) bool {
+	aInt := a.(int)
+	bInt := b.(int)
+	return aInt > bInt
+}
+
 func (i IntMatcher) MatchLike(a interface{}, b interface{}) bool {
 	return false //because of TransformValue, b cannot contain glob patterns
 }
@@ -55,6 +62,12 @@ func (s StringMatcher) MatchLessThan(a interface{}, b interface{}) bool {
 	return aStr < bStr
 }
 
+func (s StringMatcher) MatchGreaterThan(a interface{}, b interface{}) bool {
+	aStr := strings.ToLower(a.(string))
+	bStr := strings.ToLower(b.(string))
+	return aStr > bStr
+}
+
 func (s StringMatcher) MatchLike(a interface{}, b interface{}) bool {
 	str := strings.ToLower(a.(string))
 	pattern := strings.ReplaceAll(strings.ToLower(b.(string)), "%", "*") //TODO: Needs a better fitting glob function
@@ -74,6 +87,7 @@ const (
 	opEquals operator = iota
 	opNotEquals
 	opLessThan
+	opGreaterThan
 	opLike
 )
 
@@ -85,6 +99,8 @@ func funcByOP(m Matcher, op operator) matcherFunc {
 		return not(m.MatchEquals)
 	case opLessThan:
 		return m.MatchLessThan
+	case opGreaterThan:
+		return m.MatchGreaterThan
 	case opLike:
 		return m.MatchLike
 	}

@@ -81,8 +81,11 @@ func opParser(m Matcher) pars.Parser {
 		pars.Transformer(pars.String("<>"), func(interface{}) (interface{}, error) {
 			return funcByOP(m, opNotEquals), nil
 		}),
-		pars.Transformer(pars.String("<"), func(interface{}) (interface{}, error) {
+		pars.Transformer(pars.Char('<'), func(interface{}) (interface{}, error) {
 			return funcByOP(m, opLessThan), nil
+		}),
+		pars.Transformer(pars.Char('>'), func(interface{}) (interface{}, error) {
+			return funcByOP(m, opGreaterThan), nil
 		}),
 		pars.Transformer(likeKeywordParser(), func(interface{}) (interface{}, error) {
 			return funcByOP(m, opLike), nil
