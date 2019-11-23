@@ -8,7 +8,7 @@ import (
 func TestSliceIter(t *testing.T) {
 	testdata := []int{1, 2, 3, 4, 5, 6, 7}
 
-	iter := SliceIter{testdata}
+	iter := NewSliceIter(testdata)
 	slice := testdata[:]
 	for len(slice) != 0 {
 		assertIterIsEmpty(t, false, iter)

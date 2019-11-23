@@ -29,7 +29,8 @@ func (db testdb) Fields() []Field {
 }
 
 func (db testdb) Iter() iter.Iter {
-	return &iter.SliceIter{db}
+	it := iter.NewSliceIter(db)
+	return &it
 }
 
 func createData() testdb {
