@@ -15,21 +15,21 @@ type Iter interface {
 }
 
 type SliceIter struct {
-	slice interface{}
+	Slice interface{}
 }
 
 func (s SliceIter) Peek() interface{} {
-	val := reflect.ValueOf(s.slice)
+	val := reflect.ValueOf(s.Slice)
 	return val.Index(0).Interface()
 }
 
 func (s SliceIter) IsEmpty() bool {
-	val := reflect.ValueOf(s.slice)
+	val := reflect.ValueOf(s.Slice)
 	return val.Len() == 0
 }
 
 func (s *SliceIter) Next() {
-	val := reflect.ValueOf(s.slice)
+	val := reflect.ValueOf(s.Slice)
 	val = val.Slice(1, val.Len())
-	s.slice = val.Interface()
+	s.Slice = val.Interface()
 }
