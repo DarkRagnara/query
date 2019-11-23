@@ -1,6 +1,7 @@
-package query
+package query_test
 
 import (
+	. "bitbucket.org/ragnara/query"
 	"bitbucket.org/ragnara/query/iter"
 	"testing"
 )
