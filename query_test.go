@@ -58,6 +58,10 @@ func TestComplexQueries(t *testing.T) {
 		{"id = '3' and name like 'a%' or id2 = '0'", []int{2, 6}},
 		{"id = '3' or name like 'a%' and id2 = '0'", []int{2}},
 		{"name like '%a%' AND name like '%d%'", []int{4, 5, 6}},
+		{"not name like '%a%' AND name like '%d%'", []int{3}},
+		{"not name like '%a%' AND not name like '%d%'", []int{}},
+		{"name like '%a%' AND not name like '%d%'", []int{0, 1, 2}},
+		{"name like '%d%' and name Like '%ef' OR not id > '1'", []int{0, 3, 4, 6}},
 	}
 
 	runTests(t, tests)

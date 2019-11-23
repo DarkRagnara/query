@@ -40,9 +40,9 @@ func (p Processor) termClause() pars.DispatchClause {
 }
 
 func (p Processor) fieldParser() pars.Parser {
-	clauses := make([]pars.DispatchClause, 0, len(p.fields))
-	for _, field := range p.fields {
-		clauses = append(clauses, field)
+	clauses := make([]pars.DispatchClause, 0, len(p.fields)*2)
+	for i := range p.fields {
+		clauses = append(clauses, negated(p.fields[i]), p.fields[i])
 	}
 	clauses = append(clauses, pars.Clause{pars.Error(errors.New("Identifier expected"))})
 	return pars.Dispatch(clauses...)
@@ -182,4 +182,26 @@ func valueParser(m Matcher) pars.Parser {
 		func(v interface{}) (interface{}, error) {
 			return m.TransformValue(v.(string))
 		})
+}
+
+type NegatedField struct {
+	Field
+}
+
+func (n NegatedField) Parsers() []pars.Parser {
+	return []pars.Parser{
+		pars.DiscardLeft(wholeWordParser(pars.StringCI("not")), identifierParser(n.Field.Name)),
+		opParser(n.Field.Matcher),
+		valueParser(n.Field.Matcher),
+	}
+}
+
+func (n NegatedField) TransformResult(v []interface{}) interface{} {
+	return func(val interface{}) bool {
+		return !n.Field.TransformResult(v).(queryFunc)(val)
+	}
+}
+
+func negated(f Field) NegatedField {
+	return NegatedField{f}
 }
