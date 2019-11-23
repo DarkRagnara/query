@@ -1,6 +1,7 @@
 package query
 
 import (
+	"bitbucket.org/ragnara/query/iter"
 	"testing"
 )
 
@@ -26,8 +27,8 @@ func (db testdb) Fields() []Field {
 	}
 }
 
-func (db testdb) Iter() Iter {
-	return &SliceIter{db}
+func (db testdb) Iter() iter.Iter {
+	return &iter.SliceIter{db}
 }
 
 func createData() testdb {

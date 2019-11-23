@@ -2,6 +2,7 @@ package query
 
 import (
 	"bitbucket.org/ragnara/pars/v2"
+	"bitbucket.org/ragnara/query/iter"
 	"errors"
 	"unicode"
 )
@@ -49,7 +50,7 @@ func (p Processor) fieldParser() pars.Parser {
 
 type Queryable interface {
 	Fields() []Field
-	Iter() Iter
+	Iter() iter.Iter
 }
 
 type orClause struct {
