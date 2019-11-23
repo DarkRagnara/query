@@ -184,11 +184,11 @@ func valueParser(m Matcher) pars.Parser {
 		})
 }
 
-type NegatedField struct {
+type negatedField struct {
 	Field
 }
 
-func (n NegatedField) Parsers() []pars.Parser {
+func (n negatedField) Parsers() []pars.Parser {
 	return []pars.Parser{
 		pars.DiscardLeft(wholeWordParser(pars.StringCI("not")), identifierParser(n.Field.Name)),
 		opParser(n.Field.Matcher),
@@ -196,12 +196,12 @@ func (n NegatedField) Parsers() []pars.Parser {
 	}
 }
 
-func (n NegatedField) TransformResult(v []interface{}) interface{} {
+func (n negatedField) TransformResult(v []interface{}) interface{} {
 	return func(val interface{}) bool {
 		return !n.Field.TransformResult(v).(queryFunc)(val)
 	}
 }
 
-func negated(f Field) NegatedField {
-	return NegatedField{f}
+func negated(f Field) negatedField {
+	return negatedField{f}
 }
